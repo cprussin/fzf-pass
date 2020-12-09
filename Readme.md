@@ -10,7 +10,7 @@ into the clipboard.
 The easiest way to install is from nix.  For instance:
 
 ```nix
-nix-build -E "import (fetchTarball \"https://github.com/cprussin/fzf-pass/tarball/master\")"
+nix-build https://github.com/cprussin/fzf-pass/tarball/master
 ```
 
 You can also build from source (without nix) by using `cabal-install`.  If you
