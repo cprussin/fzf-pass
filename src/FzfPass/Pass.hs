@@ -1,7 +1,12 @@
 {-# LANGUAGE MultiWayIf, FlexibleContexts #-}
 
 module FzfPass.Pass
-  ( ls
+  ( PassData(PassData)
+  , name
+  , password
+  , hasOtp
+  , fields
+  , ls
   , otp
   , parse
   ) where
@@ -9,12 +14,19 @@ module FzfPass.Pass
 import Control.Monad.Except (MonadError)
 import Control.Monad.IO.Class (MonadIO)
 import Data.List (isPrefixOf, isSuffixOf)
+import Data.Map (Map, fromList)
 import System.Directory (listDirectory)
 import System.Environment (getEnv)
 
 import FzfPass.Error (Error(ReadPasswordError, OTPError, ListPasswordsError))
-import FzfPass.PassData (PassData, parsePassData, name)
 import FzfPass.Utils (readProcess', safeLiftIO)
+
+data PassData = PassData
+  { name :: String
+  , password :: Maybe String
+  , hasOtp :: Bool
+  , fields :: Map String String
+  } deriving (Show)
 
 ls :: (MonadIO m, MonadError Error m) => m [String]
 ls = safeLiftIO ListPasswordsError go
@@ -38,7 +50,23 @@ otp passData = init <$> readProcess' err "pass" ["otp", passName] ""
     passName = name passData
 
 parse :: (MonadIO m, MonadError Error m) => String -> m PassData
-parse entry = parsePassData entry <$> readProcess' err "pass" args ""
+parse entry = parsePassData <$> readProcess' err "pass" args ""
   where
     err = ReadPasswordError entry
     args = ["show", entry]
+    parsePassData out =
+      PassData
+        { name = entry
+        , password = if passLine == "" then Nothing else Just passLine
+        , hasOtp = any isOtpAuthLine outLines
+        , fields = fromList $ map fieldPair $ fieldLines
+        }
+      where
+        outLines = lines out
+        passLine = outLines !! 0
+        fieldLines = filter (not . isOtpAuthLine) $ tail outLines
+        isOtpAuthLine str = "otpauth://" `isPrefixOf` str
+        fieldPair line =
+          ( takeWhile (/= ':') line
+          , dropWhile (== ' ') $ tail $ dropWhile (/= ':') line
+          )

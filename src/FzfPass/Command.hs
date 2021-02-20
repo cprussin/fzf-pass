@@ -16,8 +16,7 @@ import Data.Maybe (isJust)
 import FzfPass.Browser (browse)
 import FzfPass.Error (Error(NoPasswordError, NoFieldError))
 import FzfPass.Fzf (fzf)
-import FzfPass.Pass (otp)
-import FzfPass.PassData (PassData, fields, name, hasOtp, password)
+import FzfPass.Pass (PassData, fields, name, hasOtp, password, otp)
 import FzfPass.WlClip (wlCopy, wlCopyWithTimeout)
 
 data Command = ClipOTP | ClipPassword | GoToSite | ClipField String
