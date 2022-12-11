@@ -1,3 +1,3 @@
-self: super: {
+self: _: {
   fzf-pass = self.callPackage ./derivation.nix {};
 }
