@@ -14,5 +14,5 @@ import FzfPass.Error (Error(BrowserError))
 import FzfPass.Utils (safeLiftIO)
 
 browse :: (MonadIO m, MonadError Error m) => String -> m ()
-browse url = safeLiftIO BrowserError $
-  void $ spawnProcess <$> getEnv "BROWSER" <*> pure [url]
+browse url = safeLiftIO BrowserError $ void $
+  flip spawnProcess [url] =<< getEnv "BROWSER"
