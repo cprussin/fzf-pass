@@ -16,7 +16,7 @@ import Control.Monad.IO.Class (MonadIO)
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map (Map, fromList)
 import System.Directory (listDirectory)
-import System.Environment (getEnv)
+import System.Environment (getEnv, lookupEnv)
 
 import FzfPass.Error (Error(ReadPasswordError, OTPError, ListPasswordsError))
 import FzfPass.Utils (readProcess', safeLiftIO)
@@ -32,7 +32,9 @@ ls :: (MonadIO m, MonadError Error m) => m [String]
 ls = safeLiftIO ListPasswordsError go
   where
     go = do
-      passwordRoot <- getEnv "PASSWORD_STORE_DIR"
+      passwordStoreDir <- lookupEnv "PASSWORD_STORE_DIR"
+      home <- getEnv "HOME"
+      let passwordRoot = maybe (home <> "/.password-store") id passwordStoreDir
       map (passwordName passwordRoot) <$> findPasswordFiles passwordRoot
     passwordName root file =
       drop (length root + 1) $ take (length file - length ".gpg") file
