@@ -35,7 +35,7 @@ nohup process =
   void $ forkProcess $ do
     _ <- createSession
     _ <- forkProcess $ do
-      devnull <- openFd "/dev/null" ReadWrite Nothing defaultFileFlags
+      devnull <- openFd "/dev/null" ReadWrite defaultFileFlags
       mapM_ (\fd -> closeFd fd >> dupTo devnull fd) [stdInput, stdOutput, stdError]
       process
     exitImmediately ExitSuccess
