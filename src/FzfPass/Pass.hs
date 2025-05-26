@@ -66,9 +66,9 @@ parse entry = parsePassData <$> readProcess' err "pass" args ""
       where
         outLines = lines out
         passLine = outLines !! 0
-        fieldLines = filter (not . isOtpAuthLine) $ tail outLines
+        fieldLines = filter (not . isOtpAuthLine) $ drop 1 $ outLines
         isOtpAuthLine str = "otpauth://" `isPrefixOf` str
         fieldPair line =
           ( takeWhile (/= ':') line
-          , dropWhile (== ' ') $ tail $ dropWhile (/= ':') line
+          , dropWhile (== ' ') $ drop 1 $ dropWhile (/= ':') line
           )
